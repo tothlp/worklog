@@ -1,5 +1,6 @@
 plugins {
     kotlin("multiplatform") version "2.0.0"
+    kotlin("plugin.serialization") version "2.0.0"
 }
 
 group = "hu.tothlp"
@@ -29,6 +30,14 @@ kotlin {
     sourceSets {
         val nativeMain by getting {
             dependencies {
+                dependencies {
+                    implementation("com.github.ajalt.clikt:clikt:4.4.0")
+                    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
+                    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
+                    implementation("com.squareup.okio:okio:3.9.0")
+
+
+                }
             }
         }
 

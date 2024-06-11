@@ -1,5 +1,5 @@
 package hu.tothlp.worklog
 
-fun main() {
-	println("Hello World!")
-}
+import hu.tothlp.worklog.command.Worklog
+
+fun main(args: Array<String>) = Worklog().main(args)
