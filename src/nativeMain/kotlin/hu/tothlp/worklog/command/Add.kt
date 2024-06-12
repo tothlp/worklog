@@ -23,7 +23,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 
 class Add: CliktCommand() {
 	private val task by argument(help = "Name of the task")
-	private val timestamp by option(help = "Timestamp of the task, eg.: 2024-01-01T13:01:00").convert("timestamp") { parseDate(it) ?: fail("Invalid date") }
+	private val timestamp by option("-t", "--timestamp",help = "Overrides the timestamp of the task, eg.: 2024-01-01T13:01:00").convert("timestamp") { parseDate(it) ?: fail("Invalid date") }
 
 	override fun run() {
 		val log = Log(task, timestamp)
