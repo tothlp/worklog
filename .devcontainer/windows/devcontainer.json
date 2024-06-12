@@ -1,0 +1,6 @@
+{
+  "image": "openjdk:17-nanoserver",
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/kotlin-sdkman:2": {}
+  }
+}
