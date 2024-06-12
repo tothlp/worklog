@@ -3,25 +3,27 @@ package hu.tothlp.worklog.command
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.convert
-import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import hu.tothlp.worklog.dto.Log
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.toKString
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.format.DateTimeFormat
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import okio.*
+import okio.FileSystem
+import okio.Path
 import okio.Path.Companion.toPath
+import okio.buffer
+import okio.use
 import platform.posix.getenv
-import platform.posix.option
 import kotlin.experimental.ExperimentalNativeApi
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-class Add: CliktCommand() {
+class Add: CliktCommand(
+	name = "add",
+	help = "Add a new task"
+) {
 	private val task by argument(help = "Name of the task")
 	private val timestamp by option("-t", "--timestamp",help = "Overrides the timestamp of the task, eg.: 2024-01-01T13:01:00").convert("timestamp") { parseDate(it) ?: fail("Invalid date") }
 

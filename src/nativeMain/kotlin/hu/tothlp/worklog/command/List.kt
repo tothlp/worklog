@@ -19,7 +19,10 @@ import okio.Path.Companion.toPath
 import platform.posix.getenv
 import kotlin.experimental.ExperimentalNativeApi
 
-class List : CliktCommand() {
+class List : CliktCommand(
+	name = "list",
+	help = "List tasks"
+) {
 
 	private val t = Terminal()
 	private val all by option("-a", "--all", help = "Show all entries").flag()
