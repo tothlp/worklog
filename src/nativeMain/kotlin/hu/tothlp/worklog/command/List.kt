@@ -6,39 +6,43 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.mordant.markdown.Markdown
 import com.github.ajalt.mordant.rendering.AnsiLevel
 import com.github.ajalt.mordant.terminal.Terminal
+import hu.tothlp.worklog.command.Files.readLines
 import hu.tothlp.worklog.dto.Log
-import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.toKString
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
 import okio.ByteString.Companion.decodeBase64
-import okio.FileSystem
-import okio.Path
-import okio.Path.Companion.toPath
-import platform.posix.getenv
-import kotlin.experimental.ExperimentalNativeApi
 
-class List : CliktCommand(
+class List(
+	private val config: Config = Config.load()
+) : CliktCommand(
 	name = "list",
 	help = "List tasks"
 ) {
 
 	private val t = Terminal()
 	private val all by option("-a", "--all", help = "Show all entries").flag()
-	private val withTime by option("-t", "--with-time", help = "Show timestamps").flag()
+	private val withTime by option("-t", "--with-time", help = "Show timestamps").flag(default = config.showTimestamps)
 
 	override fun run() {
-		val file = getDefaultFile().toPath()
-		val lines = readLines(file)
-		val logs = lines.mapNotNull {
+		val file = config.dataFilePath
+		val lines = file?.readLines()
+		if (lines.isNullOrEmpty()) {
+			t.println("No worklogs yet!")
+			return
+		}
+		val logs = lines?.mapNotNull {
 			it.decodeBase64()?.utf8()?.let { Json.decodeFromString<Log>(it) }
-		}.filter { all || Clock.System.now().toLocalDateTime().date == it.timestamp!!.date }
-			.groupBy { it.timestamp!!.date }
+		}?.filter { all || Clock.System.now().toLocalDateTime().date == it.timestamp!!.date }
+			?.groupBy { it.timestamp!!.date }
 		printLogs(logs, t.info.ansiLevel)
 	}
 
-	fun printLogs(logs: Map<LocalDate, kotlin.collections.List<Log>>, ansiLevel: AnsiLevel) {
+	fun printLogs(logs: Map<LocalDate, kotlin.collections.List<Log>>?, ansiLevel: AnsiLevel) {
+		if (logs.isNullOrEmpty()) {
+			t.println("No worklogs yet!")
+			return
+		}
 		logs.entries.forEach {
 			val title =
 				if (ansiLevel == AnsiLevel.NONE)
@@ -69,13 +73,4 @@ class List : CliktCommand(
 		}
 	}
 
-	fun readLines(path: Path) = FileSystem.SYSTEM.read(path) {
-		generateSequence { readUtf8Line() }.toList()
-	}
-
-	@OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class)
-	private fun getDefaultFile(): String = when (Platform.osFamily) {
-		OsFamily.WINDOWS -> getenv("USERPROFILE")?.toKString()?.plus("\\worklog.json")
-		else -> getenv("HOME")?.toKString()?.plus("/worklog.json")
-	}.orEmpty()
 }
