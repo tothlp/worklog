@@ -31,9 +31,8 @@ class List : CliktCommand(
 	override fun run() {
 		val file = getDefaultFile().toPath()
 		val lines = readLines(file)
-		val logs = lines.map {
-			val hex = it.decodeBase64()!!.utf8()
-			Json.decodeFromString<Log>(hex)
+		val logs = lines.mapNotNull {
+			it.decodeBase64()?.utf8()?.let { Json.decodeFromString<Log>(it) }
 		}.filter { all || Clock.System.now().toLocalDateTime().date == it.timestamp!!.date }
 			.groupBy { it.timestamp!!.date }
 		printLogs(logs, t.info.ansiLevel)
