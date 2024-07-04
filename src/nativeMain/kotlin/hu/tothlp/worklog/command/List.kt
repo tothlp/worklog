@@ -53,7 +53,7 @@ class List(
 
 			it.value.forEach { log ->
 				val prefix = if (withTime) {
-					val basePrefix = "${log.timestamp!!.time.withoutMillis()}:"
+					val basePrefix = "${log.timestamp!!.time.withoutMillis()} -"
 					when (ansiLevel) {
 						AnsiLevel.NONE -> "$basePrefix "
 						else -> "*$basePrefix* "
