@@ -7,6 +7,9 @@ import com.github.ajalt.clikt.parameters.options.option
 import hu.tothlp.worklog.command.Files.t
 import hu.tothlp.worklog.dto.Log
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.format
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okio.FileSystem
@@ -34,6 +37,17 @@ class Add(
 		val logJson = log.base64Format()
 		val file = config.dataFilePath
 		file?.let { writeEnv(file, logJson) }
+		t.info("Task added at ${log.timestamp?.prettyPrint()}")
+	}
+
+	private fun LocalDateTime?.prettyPrint(): String? {
+		val formatPattern = "yyyy-MM-dd HH:mm:ss"
+
+		@OptIn(FormatStringsInDatetimeFormats::class)
+		val dateTimeFormat = LocalDateTime.Format {
+			byUnicodePattern(formatPattern)
+		}
+		return this?.format(dateTimeFormat)
 	}
 
 	private fun parseDate(date: String) = runCatching { LocalDateTime.parse(date) }.getOrNull()
